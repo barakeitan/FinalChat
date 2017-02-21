@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "583815756735",
+    "firebase_url": "https://finalchat-62fdf.firebaseio.com",
+    "project_id": "finalchat-62fdf",
+    "storage_bucket": "finalchat-62fdf.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:583815756735:android:a838e24fc04981f1",
+        "android_client_info": {
+          "package_name": "com.barak.lin.finalchat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "583815756735-l4afr9puq2iqojk52set2c1sis444006.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBChAhIS8Z_VCQ2dchUjyahCIbGZRv_4PI"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
