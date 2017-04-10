@@ -20,8 +20,40 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <include layout="@layout/content_rooms"
-        android:layout_height="match_parent" />
+    <include layout="@layout/content_rooms"/>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/FabBC"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginBottom="260dp"
+        android:layout_marginRight="@dimen/fab_margin"
+        android:src="@drawable/ic_bc"
+        android:visibility="invisible"
+        app:backgroundTint="@android:color/holo_red_light" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/FabMC"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginBottom="180dp"
+        android:layout_marginRight="@dimen/fab_margin"
+        android:src="@drawable/ic_mc"
+        android:visibility="invisible"
+        app:backgroundTint="@android:color/holo_orange_dark" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/FabUC"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginBottom="100dp"
+        android:layout_marginRight="@dimen/fab_margin"
+        android:src="@drawable/ic_uc"
+        android:visibility="invisible"
+        app:backgroundTint="@android:color/holo_green_light" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"

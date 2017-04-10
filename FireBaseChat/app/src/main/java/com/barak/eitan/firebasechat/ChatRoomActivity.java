@@ -10,6 +10,10 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.crash.FirebaseCrash;
@@ -22,15 +26,20 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
-import okhttp3.Request;
 import okhttp3.RequestBody;
-import okhttp3.Response;
+
+import static com.barak.eitan.firebasechat.RoomsActivity.ROOM_MODE_GROUPS;
+import static com.barak.eitan.firebasechat.RoomsActivity.ROOM_TAG;
+
+//import okhttp3.Request;
 
 public class ChatRoomActivity extends AppCompatActivity {
 
@@ -40,12 +49,14 @@ public class ChatRoomActivity extends AppCompatActivity {
 
     FirebaseAuth auth;
     FirebaseUser usr;
-    DatabaseReference ref, usrRef;
+    DatabaseReference ref, grpRef, prvRef;
+
     int mode;
     boolean isRunning = false;
+
     ListView lv;
     ArrayList<MessageItem> messages;
-    Set<String> users; // this list will contain the uids of the users for easier search
+    ArrayList<String> users; // this list will contain the uids of the users for easier search
     MessageAdapter adapter;
     EditText etMessage;
 
@@ -68,18 +79,18 @@ public class ChatRoomActivity extends AppCompatActivity {
 
         auth = FirebaseAuth.getInstance();
         usr  = auth.getCurrentUser();
-        ref  = FirebaseDatabase.getInstance().getReference().child("rooms/" + getIntent().getStringExtra("title"));
-        usrRef = FirebaseDatabase.getInstance().getReference().child("users");
+        ref  = FirebaseDatabase.getInstance().getReference().child(getModeStringRef());
+        grpRef = FirebaseDatabase.getInstance().getReference().child("users");
 
         etMessage = (EditText) findViewById(R.id.etMessage);
         lv = (ListView) findViewById(R.id.MessagesLv);
         messages = new ArrayList<MessageItem>();
         adapter = new MessageAdapter(this,R.layout.message_layout,messages);
-        users = new HashSet<String>();
+        users = new ArrayList<String>();
         requestQueue = new ArrayList<String>();
         lv.setAdapter(adapter);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fabSend);
+        final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fabSend);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -151,33 +162,99 @@ public class ChatRoomActivity extends AppCompatActivity {
                 OkHttpClient client = new OkHttpClient();
                 String json;
                 RequestBody body;
-                Request r;
+//                Request r;
                 while(isRunning){
                     if (requestQueue.size() > 0) {
-                        json = convertToJson(requestQueue.get(0));
-                        body = RequestBody.create(type,json);
-                        r = new Request.Builder()
-                                .url(url)
-                                .addHeader("Authorization:key",serverKey)
-                                .post(body)
-                                .build();
-                        try {
-                            Response response = client.newCall(r).execute();
-                            if(response.isSuccessful()){
-                                Toast.makeText(ChatRoomActivity.this,"sent notification", Toast.LENGTH_SHORT).show();
+                        json = requestQueue.get(0);
+//                        body = RequestBody.create(type,json);
+//                        r = new Request.Builder()
+//                                .url(url)
+//                                .addHeader("Authorization:key",serverKey)
+//                                .post(body)
+//                                .build();
+//                        try {
+//                            Response response = client.newCall(r).execute();
+//                            if(response.isSuccessful()){
+//                                Toast.makeText(ChatRoomActivity.this,"sent notification", Toast.LENGTH_SHORT).show();
+//                            }
+//                            else{
+//                                Toast.makeText(ChatRoomActivity.this,"notification failed",Toast.LENGTH_SHORT).show();
+//                            }
+//                        }catch (Exception e){
+//                            Log.e(LogregActivity.FIREBASE_TAG,e.getMessage());
+//                        }
+                        final StringRequest request = new StringRequest(Request.Method.POST, url,
+                                new com.android.volley.Response.Listener<String>() {
+                                    @Override
+                                    public void onResponse(String response) {
+                                        Toast.makeText(ChatRoomActivity.this,response,Toast.LENGTH_SHORT).show();
+                                    }
+                                },
+                                new com.android.volley.Response.ErrorListener() {
+                                    @Override
+                                    public void onErrorResponse(VolleyError error) {
+                                        Log.e(LogregActivity.FIREBASE_TAG, Log.getStackTraceString(error));
+                                        try {
+                                            Log.e(LogregActivity.FIREBASE_TAG, "Error: " + error
+                                                    + ">>" + error.networkResponse.statusCode
+                                                    + ">>" + error.networkResponse.data
+                                                    + ">>" + error.getCause()
+                                                    + ">>" + error.getMessage());
+                                        }catch(Exception e){
+                                            Log.e(LogregActivity.FIREBASE_TAG, Log.getStackTraceString(e));
+                                            Log.e(LogregActivity.FIREBASE_TAG, e.getMessage());
+                                        }
+                                        Toast.makeText(ChatRoomActivity.this,error.getMessage(),Toast.LENGTH_SHORT).show();
+                                    }
+                                })
+                        {
+                            @Override
+                            protected Map<String, String> getParams() throws AuthFailureError {
+                                Map<String,String> params = new HashMap<String, String>();
+                                params.put("to", users.get(0));
+//                                params.put("data", convertToJson(requestQueue.get(0)));
+                                params.put("notification","{title:'hello', body:'this is a try'}");
+                                return params;
                             }
-                            else{
-                                Toast.makeText(ChatRoomActivity.this,"notification failed",Toast.LENGTH_SHORT).show();
+
+                            @Override
+                            public Map<String, String> getHeaders() throws AuthFailureError {
+                                Map<String, String> headers = new HashMap<String, String>();
+                                headers.put("Content-Type","application/json");
+                                headers.put("Authorization","key=" + serverKey);
+                                return headers;
                             }
-                        }catch (Exception e){
-                            Log.e(LogregActivity.FIREBASE_TAG,e.getMessage());
-                        }
+                        };
+
+                        VolleyHandler.getHandler(ChatRoomActivity.this).addToRequestQueue(request);
                         requestQueue.remove(0);
                     }
                 }
             }
         });
         httpSender.start();
+    }
+
+    private String getModeStringRef() {
+        String title = getIntent().getStringExtra("title");
+        int mode = getIntent().getIntExtra(ROOM_TAG, ROOM_MODE_GROUPS);
+        String result = "";
+        switch (mode){
+            case RoomsActivity.ROOM_MODE_PRIVATE:
+                result = ("private/"+getIntent().getStringExtra("private")+"/msgs");
+                break;
+            case ROOM_MODE_GROUPS:
+                result = ("rooms/"+title+"/msgs");
+                grpRef = FirebaseDatabase.getInstance().getReference("rooms/"+title+"/users");
+                break;
+            case RoomsActivity.ROOM_MODE_BROADCAST:
+                result = ("broadcasts/"+title);
+                break;
+            default:
+                result = null;
+                break;
+        }
+        return result;
     }
 
     private String convertToJson(String message) {
@@ -221,7 +298,7 @@ public class ChatRoomActivity extends AppCompatActivity {
     }
 
     private void handleRoomMode(int mode) {
-        usrRef.addValueEventListener(new ValueEventListener() {
+        grpRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Iterator i = dataSnapshot.getChildren().iterator();
@@ -237,9 +314,9 @@ public class ChatRoomActivity extends AppCompatActivity {
         });
         switch (mode){
             case RoomsActivity.ROOM_MODE_PRIVATE:
-                ref.child("rooms/" + getIntent().getStringExtra("title"));
+                ref.child("private/" + getIntent().getStringExtra("private"));
                 break;
-            case RoomsActivity.ROOM_MODE_GROUPS:
+            case ROOM_MODE_GROUPS:
                 ref.child("groups/" + getIntent().getStringExtra("title"));
                 break;
             case RoomsActivity.ROOM_MODE_BROADCAST:

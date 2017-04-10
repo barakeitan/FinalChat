@@ -9,12 +9,18 @@ public class UserInfo {
     private String phone;
     private String birthday;
     private boolean isOnline;
+    private String dispName;
 
-    public UserInfo(String email, String phone, String birthday) {
+    public UserInfo(){
+
+    }
+
+    public UserInfo(String email, String phone, String birthday, String dispName) {
         this.email = email;
         this.phone = phone;
         this.birthday = birthday;
         this.isOnline = false;
+        this.dispName = dispName;
     }
 
     public String getEmail() {
@@ -47,5 +53,13 @@ public class UserInfo {
 
     public void setOnline(boolean online) {
         isOnline = online;
+    }
+
+    public String getDispName() {
+        return dispName;
+    }
+
+    public void setDispName(String dispName) {
+        this.dispName = dispName;
     }
 }

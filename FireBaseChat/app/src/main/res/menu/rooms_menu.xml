@@ -9,10 +9,22 @@
         android:title="sign out"
         app:showAsAction="never"
         />
-    <item
-        android:id="@+id/rooms_action_search"
-        android:icon="?android:attr/actionModeWebSearchDrawable"
-        android:title="search"
-        app:showAsAction="ifRoom|collapseActionView"
-        app:actionViewClass="android.support.v7.widget.SearchView" />
+    <item android:id="@+id/rooms_action_unicast"
+        android:title="private chats"
+        app:showAsAction="never"
+        />
+    <item android:id="@+id/rooms_action_multicast"
+        android:title="your groups"
+        app:showAsAction="never"
+        />
+    <item android:id="@+id/rooms_action_broadcast"
+        android:title="broadcast"
+        app:showAsAction="never"
+        />
+    <!--<item-->
+        <!--android:id="@+id/rooms_action_search"-->
+        <!--android:icon="?android:attr/actionModeWebSearchDrawable"-->
+        <!--android:title="search"-->
+        <!--app:showAsAction="ifRoom|collapseActionView"-->
+        <!--app:actionViewClass="android.support.v7.widget.SearchView" />-->
 </menu>
